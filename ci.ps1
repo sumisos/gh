@@ -1,13 +1,27 @@
 #=================================================
 #   Author: Sumi(po@ews.ink)
-#   Version: 1.1.3.2
+#   Version: 1.1.4.0
 #   Updated: 2021-05-19
 #   Description: Git Helper Powershell Version
 #=================================================
 
-$Script:Version = "1.1.3.2"
+$Script:Version = "1.1.4.0"
 $Script:Updated = "2021-05-19"
 [String]$Script:ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+#=================================================
+# @func Write-Debug
+# @param {Object} $Target
+# @desc Print debug
+#=================================================
+function Write-Debug {
+  [CmdletBinding()] Param (
+    [Parameter(Mandatory = $true, Position = 1)] $Breakpoint
+  )
+  $DebugTips = "[{0}]`n{1}" -F $Breakpoint.GetType(), $Breakpoint
+  Write-Host $DebugTips
+  exit
+}
 
 #=================================================
 # @func Write-Log
@@ -31,7 +45,7 @@ function Write-Log {
     { "FATAL".Contains($Level) } { $Label = "FATAL" }
     default { $Label = "DEBUG" }
   }
-  $Logger = "{0} {1} {2}" -f $Current, "[$($Label)]".PadLeft(7, ' '), $Content
+  $Logger = "{0} {1} {2}" -F $Current, "[$($Label)]".PadLeft(7, ' '), $Content
   switch ($Level) {
     { "NOTICE".Contains($Level) } { Write-Host $Logger -ForegroundColor Cyan }
     { "SUCCESS".Contains($Level) } { Write-Host $Logger -ForegroundColor Green }
@@ -54,30 +68,31 @@ function Read-Config {
     [Parameter(Mandatory = $true, Position = 1)] [String]$ScriptPath
   )
   Write-Log "Reading config file(.env) ..."
-  $ConfigPath = "{0}\.env" -f $ScriptPath
+  $ConfigPath = "{0}\.env" -F $ScriptPath
   if (Test-Path $ConfigPath) {
-    $SettingData = Get-Content $ConfigPath # -Encoding UTF8
-    $Script:Config = $SettingData.Trim('"').Split('\r\n', [StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object {
-      $item = $_.Split('=')
-      "{0}={1}" -f $item[0], $item[1]
+    $SettingList = Get-Content $ConfigPath # -Encoding UTF8
+    $Script:Config = $SettingList | ForEach-Object {
+      $item = "$($_)".Split('=')
+      "{0}={1}" -F $item[0], $item[1].Replace("\", "/").Replace("./", "/")
     } | ConvertFrom-StringData
   }
   else {
     Write-Log ".env file not exists!" warn
-    $config = @"
+    @"
 COMMAND_SAVE=save
 COMMAND_DIST=dist
 BRANCH_MAIN=main
 BRANCH_DEVELOP=writing
 AUTO_DELETE=
-"@
-    $config | ConvertTo-Json | Out-File $ConfigPath
+DEBUG=false
+"@ | Out-File $ConfigPath
     $Script:Config = @{
       COMMAND_SAVE   = "save"
       COMMAND_DIST   = "dist"
-      BRANCH_MAIN    = "main"
+      BRANCH_MAIN    = "main"    # 老仓库是master 后来Github搞政治正确废除了"奴隶制" Code Lives Matter!
       BRANCH_DEVELOP = "writing"
-      AUTO_DELETE    = ""
+      AUTO_DELETE    = ""        # 需要删除的文件夹写在这里即可 比如 /public/
+      DEBUG          = "false"
     }
     Write-Log "Generated .env file success. Use default setting." notice
   }
@@ -101,9 +116,15 @@ function Initialize-Workspace {
   }
   Set-Location $Root
   if (-not [String]::IsNullOrEmpty($DeletePath)) {
-    $will_delete = $Root + "\" + $DeletePath.Trim("\/")  # 未处理 ./ 格式
+    $will_delete = $Root + "\" + $DeletePath.Trim("/")
     if ((Test-Path $will_delete) -and (-not $Root.Contains($will_delete))) {
-      Remove-Item $will_delete -Recurse
+      if ("$($Script:Config.DEBUG)".CompareTo("true") -ne -1) {
+        $DebugInfo = "Try to delete:`n" + $will_delete
+        Write-Log $DebugInfo debug
+      }
+      else {
+        Remove-Item $will_delete -Recurse
+      }
     }
   }
   Write-Log "Script Version $($Version)    Updated @$($Updated)" notice
@@ -114,17 +135,17 @@ function Initialize-Workspace {
 #=================================================
 # @func Invoke-Command
 # @param {String} $CommandString commands
-# @param {Switch} $enableDebug debug mod
+# @param {Switch} $DebugMode debug mod
 # @desc Execute commands
 #=================================================
 function Invoke-Command {
   [CmdletBinding()] Param (
     [Parameter(Mandatory = $true)] [String]$CommandString,
-    [Switch]$enableDebug
+    [String]$DebugMode = "false"
   )
-  if ($enableDebug) {
-    $debugInfo = "Try to exec this command:`n" + $CommandString
-    Write-Log $debugInfo debug
+  if ($DebugMode.CompareTo("true") -ne -1) {
+    $DebugInfo = "Try to exec command:`n" + $CommandString
+    Write-Log $DebugInfo debug
   }
   else {
     $command = [scriptblock]::Create($CommandString)
@@ -132,6 +153,13 @@ function Invoke-Command {
     & $command
   }
 }
+
+#=================================================
+#   Main
+#=================================================
+
+Read-Config $Script:ScriptPath
+$Script:Root = $Script:ScriptPath | Split-Path
 
 $curtime = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
 if ([String]::IsNullOrEmpty($args[0])) {
@@ -170,10 +198,10 @@ git push gitee $($Script:Config.BRANCH_MAIN)
 git switch $($Script:Config.BRANCH_DEVELOP)
 "@
 
-  if ($Script:Config.COMMAND_SAVE.contains("$($args[0])")) {
+  if ("$($Script:Config.COMMAND_SAVE)".contains("$($args[0])")) {
     $Script:CommandBlock = $Script:DoSave
   }
-  elseif ($Script:Config.COMMAND_DIST.contains("$($args[0])")) {
+  elseif ("$($Script:Config.COMMAND_DIST)".contains("$($args[0])")) {
     $Script:CommandBlock = $Script:DoDist
   }
   else {
@@ -185,8 +213,6 @@ git status
 }
 
 # Trap { Write-Log "Trap Error: $($_.Exception.Message)" error; Continue }
-Read-Config $Script:ScriptPath
-$Script:Root = $Script:ScriptPath | Split-Path
 if (Initialize-Workspace $Script:Root -DeletePath $Script:Config.AUTO_DELETE) {
-  Invoke-Command $Script:CommandBlock # -enableDebug
+  Invoke-Command $Script:CommandBlock $Script:Config.DEBUG
 }
