@@ -7,7 +7,7 @@ $ git submodule add https://github.com/sumisos/gh.git
 
 ## Update
 ```bash
-$ $ git submodule update --rebase --remote
+$ git submodule update --rebase --remote
 ```
 
 ## Usage
@@ -72,5 +72,5 @@ $ ./gh/ci
 ```
 
 ## TODO
-- [ ] Support config file to customize script  
+- [x] Support config file to customize script  
 - [ ] Refactor shell version to support Linux  

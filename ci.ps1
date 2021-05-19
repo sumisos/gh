@@ -8,12 +8,7 @@
 $Script:Version = "1.1.3.1"
 $Script:Updated = "2021-05-19"
 
-[String]$Script:Root = Split-Path -Parent $MyInvocation.MyCommand.Definition | Split-Path
-$Script:SaveCommand = "save"
-$Script:DistCommand = "dist"
-$Script:AutoDelete = ""  # 需要删除的文件夹写在这里即可 比如 /public/
-$Script:MainBranch = "main"  # 老仓库是master 后来Github搞政治正确废除了"奴隶制" Code Lives Matter!!
-$Script:EditBranch = "writing"
+[String]$Script:ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 #=================================================
 # @func Write-Log
@@ -51,6 +46,45 @@ function Write-Log {
 }
 
 #=================================================
+# @func Read-Config
+# @param {String} $ScriptPath
+# @desc Read config from local .env file
+#=================================================
+function Read-Config {
+  [CmdletBinding()] Param (
+    [Parameter(Mandatory = $true, Position = 1)] [String]$ScriptPath
+  )
+  Write-Log "Reading config file(.env) ..."
+  $ConfigPath = "{0}\.env" -f $ScriptPath
+  if (Test-Path $ConfigPath) {
+    $SettingData = Get-Content $ConfigPath # -Encoding UTF8
+    $Script:Config = $SettingData.Trim('"').Split('\r\n', [StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object {
+      $item = $_.Split('=')
+      "{0}={1}" -f $item[0], $item[1]
+    } | ConvertFrom-StringData
+  }
+  else {
+    Write-Log ".env file not exists!" warn
+    $config = @"
+COMMAND_SAVE=save
+COMMAND_DIST=dist
+BRANCH_MAIN=main
+BRANCH_DEVELOP=writing
+AUTO_DELETE=
+"@
+    $config | ConvertTo-Json | Out-File $ConfigPath
+    $Script:Config = @{
+      COMMAND_SAVE   = "save"
+      COMMAND_DIST   = "dist"
+      BRANCH_MAIN    = "main"
+      BRANCH_DEVELOP = "writing"
+      AUTO_DELETE    = ""
+    }
+    Write-Log "Generated .env file success. Use default setting." notice
+  }
+}
+
+#=================================================
 # @func Initialize-Workspace
 # @param {String} $Root project root path
 # @param {String} $DeletePath auto delete path
@@ -59,22 +93,23 @@ function Write-Log {
 #=================================================
 function Initialize-Workspace {
   [CmdletBinding()] Param (
-    [Parameter(Mandatory = $true, Position = 1)] [String] $Root,
-    [Parameter(Position = 2)] [String] $DeletePath
+    [Parameter(Mandatory = $true, Position = 1)] [String]$Root,
+    [Parameter(Position = 2)] [String]$DeletePath
   )
+  Read-Config $Script:ScriptPath
   if (-not (Test-Path "$($Root)/.git")) {
-    Write-Log "当前工作目录不是 Git 项目" fatal
+    Write-Log "Workspace is NOT a git project!" fatal
     return $false
   }
-  Set-Location $Root
+  Set-Location $Script:ScriptPath | Split-Path
   if (-not [String]::IsNullOrEmpty($DeletePath)) {
     $will_delete = $Root + "\" + $DeletePath.Trim("\/")  # 未处理 ./ 格式
     if ((Test-Path $will_delete) -and (-not $Root.Contains($will_delete))) {
       Remove-Item $will_delete -Recurse
     }
   }
-  Write-Log "当前脚本版本 v$($Version) Updated @$($Updated)" notice
-  Write-Log "当前工作目录 $($Root)" success
+  Write-Log "Script Version $($Version)    Updated @$($Updated)" notice
+  Write-Log "Workspace: $($Root)" success
   return $true
 }
 
@@ -86,8 +121,8 @@ function Initialize-Workspace {
 #=================================================
 function Invoke-Command {
   [CmdletBinding()] Param (
-    [Parameter(Mandatory = $true)] [String] $CommandString,
-    [Switch] $enableDebug
+    [Parameter(Mandatory = $true)] [String]$CommandString,
+    [Switch]$enableDebug
   )
   if ($enableDebug) {
     $debugInfo = "Try to exec this command:`n" + $CommandString
@@ -121,26 +156,26 @@ else {
   }
 
   $Script:DoSave = @"
-git switch $($Script:EditBranch)
+git switch $($Script:Config.BRANCH_DEVELOP)
 git add .
 git status
 git commit -m `"$($commit_message)`"
-git push -u origin $($Script:EditBranch)
-git push gitee $($Script:EditBranch)
+git push -u origin $($Script:Config.BRANCH_DEVELOP)
+git push gitee $($Script:Config.BRANCH_DEVELOP)
 "@
 
   $Script:DoDist = @"
-git switch $($Script:MainBranch)
-git merge $($Script:EditBranch) -m "$($commit_message)"
-git push -u origin $($Script:MainBranch)
-git push gitee $($Script:MainBranch)
-git switch $($Script:EditBranch)
+git switch $($Script:Config.BRANCH_MAIN)
+git merge $($Script:Config.BRANCH_DEVELOP) -m "$($commit_message)"
+git push -u origin $($Script:Config.BRANCH_MAIN)
+git push gitee $($Script:Config.BRANCH_MAIN)
+git switch $($Script:Config.BRANCH_DEVELOP)
 "@
 
-  if ($Script:SaveCommand.contains("$($args[0])")) {
+  if ($Script:Config.COMMAND_SAVE.contains("$($args[0])")) {
     $Script:CommandBlock = $Script:DoSave
   }
-  elseif ($Script:DistCommand.contains("$($args[0])")) {
+  elseif ($Script:Config.COMMAND_DIST.contains("$($args[0])")) {
     $Script:CommandBlock = $Script:DoDist
   }
   else {
@@ -152,6 +187,6 @@ git status
 }
 
 # Trap { Write-Log "Trap Error: $($_.Exception.Message)" error; Continue }
-if (Initialize-Workspace $Script:Root -DeletePath $Script:AutoDelete) {
+if (Initialize-Workspace $Script:Root -DeletePath $Script:Config.AUTO_DELETE) {
   Invoke-Command $Script:CommandBlock # -enableDebug
 }
