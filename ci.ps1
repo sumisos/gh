@@ -1,11 +1,11 @@
 #=================================================
 #   Author: Sumi(po@ews.ink)
-#   Version: 1.1.3.0
+#   Version: 1.1.3.1
 #   Updated: 2021-05-19
 #   Description: Git Helper Powershell Version
 #=================================================
 
-$Script:Version = "1.1.3.0"
+$Script:Version = "1.1.3.1"
 $Script:Updated = "2021-05-19"
 
 [String]$Script:Root = Split-Path -Parent $MyInvocation.MyCommand.Definition | Split-Path
@@ -17,7 +17,9 @@ $Script:EditBranch = "writing"
 
 #=================================================
 # @func Write-Log
-# @desc 打印运行日志
+# @param {String} $Content logger content
+# @param {String} $Level logger level
+# @desc Print logger
 #=================================================
 function Write-Log {
   [CmdletBinding()] Param (
@@ -50,12 +52,15 @@ function Write-Log {
 
 #=================================================
 # @func Initialize-Workspace
-# @desc 初始化工作 在执行 $commitWithMessage 前运行
+# @param {String} $Root project root path
+# @param {String} $DeletePath auto delete path
+# @return {Boolean} success
+# @desc Initialize workspace before execute $Script:CommandBlock
 #=================================================
 function Initialize-Workspace {
   [CmdletBinding()] Param (
-    [Parameter(Mandatory = $true, Position = 1)] [string] $Root,
-    [Parameter(Position = 2)] [string] $DeletePath
+    [Parameter(Mandatory = $true, Position = 1)] [String] $Root,
+    [Parameter(Position = 2)] [String] $DeletePath
   )
   if (-not (Test-Path "$($Root)/.git")) {
     Write-Log "当前工作目录不是 Git 项目" fatal
@@ -75,13 +80,14 @@ function Initialize-Workspace {
 
 #=================================================
 # @func Invoke-Command
-# @desc 执行预设的指令
-# @param {Boolean} $is_debug = $false 是否为调试模式
+# @param {String} $CommandString commands
+# @param {Switch} $enableDebug debug mod
+# @desc Execute commands
 #=================================================
 function Invoke-Command {
   [CmdletBinding()] Param (
-    [Parameter(Mandatory = $true)] [string] $CommandString,
-    [switch] $enableDebug
+    [Parameter(Mandatory = $true)] [String] $CommandString,
+    [Switch] $enableDebug
   )
   if ($enableDebug) {
     $debugInfo = "Try to exec this command:`n" + $CommandString

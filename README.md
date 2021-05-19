@@ -26,6 +26,8 @@ $ .\gh\ci.ps1 save
 
 >  Default commit message wil be `Updated @yyyy-MM-dd HH:mm:ss`.  
 
+---
+
 You may save the "save":  
 ```powershell
 $ .\gh\ci.ps1 s
@@ -44,6 +46,8 @@ You may edit a long commit message:
 ```powershell
 $ .\gh\ci.ps1 save "fixIt's a very long commit message & Closes #123, #456"
 ```
+
+---
 
 You may save the quotes:  
 ```powershell
