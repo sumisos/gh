@@ -82,7 +82,7 @@ function Read-Config {
 COMMAND_SAVE=save
 COMMAND_DIST=dist
 BRANCH_MAIN=main
-BRANCH_DEVELOP=writing
+BRANCH_DEVELOP=develop
 AUTO_DELETE=
 DEBUG=false
 "@ | Out-File $ConfigPath
@@ -90,7 +90,7 @@ DEBUG=false
       COMMAND_SAVE   = "save"
       COMMAND_DIST   = "dist"
       BRANCH_MAIN    = "main"    # 老仓库是master 后来Github搞政治正确废除了"奴隶制" Code Lives Matter!
-      BRANCH_DEVELOP = "writing"
+      BRANCH_DEVELOP = "develop"
       AUTO_DELETE    = ""        # 需要删除的文件夹写在这里即可 比如 /public/
       DEBUG          = "false"
     }
