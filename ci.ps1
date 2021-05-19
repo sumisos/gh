@@ -1,13 +1,12 @@
 #=================================================
 #   Author: Sumi(po@ews.ink)
-#   Version: 1.1.3.1
+#   Version: 1.1.3.2
 #   Updated: 2021-05-19
 #   Description: Git Helper Powershell Version
 #=================================================
 
-$Script:Version = "1.1.3.1"
+$Script:Version = "1.1.3.2"
 $Script:Updated = "2021-05-19"
-
 [String]$Script:ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 #=================================================
@@ -96,12 +95,11 @@ function Initialize-Workspace {
     [Parameter(Mandatory = $true, Position = 1)] [String]$Root,
     [Parameter(Position = 2)] [String]$DeletePath
   )
-  Read-Config $Script:ScriptPath
   if (-not (Test-Path "$($Root)/.git")) {
     Write-Log "Workspace is NOT a git project!" fatal
     return $false
   }
-  Set-Location $Script:ScriptPath | Split-Path
+  Set-Location $Root
   if (-not [String]::IsNullOrEmpty($DeletePath)) {
     $will_delete = $Root + "\" + $DeletePath.Trim("\/")  # 未处理 ./ 格式
     if ((Test-Path $will_delete) -and (-not $Root.Contains($will_delete))) {
@@ -187,6 +185,8 @@ git status
 }
 
 # Trap { Write-Log "Trap Error: $($_.Exception.Message)" error; Continue }
+Read-Config $Script:ScriptPath
+$Script:Root = $Script:ScriptPath | Split-Path
 if (Initialize-Workspace $Script:Root -DeletePath $Script:Config.AUTO_DELETE) {
   Invoke-Command $Script:CommandBlock # -enableDebug
 }
