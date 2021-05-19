@@ -5,6 +5,11 @@
 $ git submodule add https://github.com/sumisos/gh.git
 ```
 
+## Update
+```bash
+$ $ git submodule update --rebase --remote
+```
+
 ## Usage
 ### Windows
 ```powershell
@@ -44,7 +49,7 @@ $ .\gh\ci.ps1 sa init
 
 You may edit a long commit message:  
 ```powershell
-$ .\gh\ci.ps1 save "fixIt's a very long commit message & Closes #123, #456"
+$ .\gh\ci.ps1 save "fix: It's a very long commit message & Closes #123, #456"
 ```
 
 ---
