@@ -1,11 +1,11 @@
 #=================================================
 #   Author: Sumi(po@ews.ink)
-#   Version: 1.1.4.1
+#   Version: 1.1.4.2
 #   Updated: 2021-05-20
 #   Description: Git Helper Powershell Version
 #=================================================
 
-$Script:Version = "1.1.4.1"
+$Script:Version = "1.1.4.2"
 $Script:Updated = "2021-05-20"
 [String]$Script:ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
