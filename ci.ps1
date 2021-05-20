@@ -206,8 +206,8 @@ git switch $($Script:Config.BRANCH_DEVELOP)
   }
   elseif ("update".Contains("$($args[0])")) {
     $Script:CommandBlock = @"
-git add .
 git submodule update --rebase --remote
+git add .
 "@
   }
   else {
