@@ -1,11 +1,11 @@
 #=================================================
 #   Author: Sumi(po@ews.ink)
-#   Version: 1.1.4.2
+#   Version: 1.1.4.3
 #   Updated: 2021-05-20
 #   Description: Git Helper Powershell Version
 #=================================================
 
-$Script:Version = "1.1.4.2"
+$Script:Version = "1.1.4.3"
 $Script:Updated = "2021-05-20"
 [String]$Script:ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
@@ -67,7 +67,7 @@ function Read-Config {
   [CmdletBinding()] Param (
     [Parameter(Mandatory = $true, Position = 1)] [String]$ScriptPath
   )
-  Write-Log "Reading config file(.env) ..."
+  # Write-Log "Reading config file(.env) ..." debug
   $ConfigPath = "{0}\.env" -F $ScriptPath
   if (Test-Path $ConfigPath) {
     $SettingList = Get-Content $ConfigPath # -Encoding UTF8

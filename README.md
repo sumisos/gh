@@ -1,9 +1,9 @@
-<h3 align="center">🚀 Git Helper Scripts Using PowerShell</h3>
+<h2 align="center">🚀 Git Helper Scripts Using PowerShell</h2>
 
 <p  align="center">
     <a href="https://github.com/sumisos/gh" target="_blank"><img src="https://img.shields.io/badge/sumisos-gh-blue?logo=github" alt="Github Repository" /></a>
     <a href="https://github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/license-MIT-green" alt="Package License" /></a>
-    <a href="https://github.com/sumisos/gh/releases" target="_blank"><img src="https://img.shields.io/github/v/release/sumisos/gh" alt="Release Version" /></a>
+    <a href="https://github.com/sumisos/gh/tags" target="_blank"><img src="https://img.shields.io/github/v/tag/sumisos/gh" alt="Release Version" /></a>
 </p>
 
 ## Install
