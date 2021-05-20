@@ -198,11 +198,17 @@ git push gitee $($Script:Config.BRANCH_MAIN)
 git switch $($Script:Config.BRANCH_DEVELOP)
 "@
 
-  if ("$($Script:Config.COMMAND_SAVE)".contains("$($args[0])")) {
+  if ("$($Script:Config.COMMAND_SAVE)".Contains("$($args[0])")) {
     $Script:CommandBlock = $Script:DoSave
   }
-  elseif ("$($Script:Config.COMMAND_DIST)".contains("$($args[0])")) {
+  elseif ("$($Script:Config.COMMAND_DIST)".Contains("$($args[0])")) {
     $Script:CommandBlock = $Script:DoDist
+  }
+  elseif ("update".Contains("$($args[0])")) {
+    $Script:CommandBlock = @"
+git add .
+git submodule update --rebase --remote
+"@
   }
   else {
     $Script:CommandBlock = @"
