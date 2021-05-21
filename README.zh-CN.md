@@ -1,14 +1,14 @@
 <h2 align="center">🚀 Git 使用助手 PowerShell 版</h2>
 
 <p  align="center">
-    <a href="https：//github.com/sumisos/gh" target="_blank"><img src="https：//img.shields.io/badge/sumisos-gh-blue?logo=github" alt="Github Repository" /></a>
-    <a href="https：//github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https：//img.shields.io/badge/license-MIT-green" alt="Package License" /></a>
-    <a href="https：//github.com/sumisos/gh/tags" target="_blank"><img src="https：//img.shields.io/github/v/tag/sumisos/gh" alt="Release Version" /></a>
+    <a href="https://github.com/sumisos/gh" target="_blank"><img src="https://img.shields.io/badge/sumisos-gh-blue?logo=github" alt="Github Repository" /></a>
+    <a href="https://github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/license-MIT-green" alt="Package License" /></a>
+    <a href="https://github.com/sumisos/gh/tags" target="_blank"><img src="https://img.shields.io/github/v/tag/sumisos/gh" alt="Release Version" /></a>
 </p>
 
 ## 安装
 ```bash
-$ git submodule add https：//github.com/sumisos/gh.git
+$ git submodule add http://github.com/sumisos/gh.git
 ```
 
 ## 用法
