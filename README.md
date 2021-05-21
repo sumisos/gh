@@ -4,6 +4,7 @@
     <a href="https://github.com/sumisos/gh" target="_blank"><img src="https://img.shields.io/badge/sumisos-gh-blue?logo=github" alt="Github Repository" /></a>
     <a href="https://github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/license-MIT-green" alt="Package License" /></a>
     <a href="https://github.com/sumisos/gh/tags" target="_blank"><img src="https://img.shields.io/github/v/tag/sumisos/gh" alt="Release Version" /></a>
+    <a href="https://github.com/sumisos/gh/blob/main/README.zh-CN.md" target="_blank"><img src="https://img.shields.io/badge/中文-文档-green" alt="Release Version" /></a>
 </p>
 
 ## Install
@@ -12,43 +13,75 @@ $ git submodule add https://github.com/sumisos/gh.git
 ```
 
 ## Usage
+* Configuration file(`.env`) will be generated if not exists  
+* It also works if moved `ci.ps1` to parent path  
+
+```
+Your-Project/
+ ├── .git/       # git repo meta info
+ ├── gh/
+ │ ├── .env      # config file
+ │ ├── core.ps1  # core function
+ │ ├── ci.ps1    # starter
+ │ └── ...
+ └── ...         # your project
+```
+
+Become：  
+```
+Your-Project/
+ ├── .git/       # Git repo meta info
+ ├── gh/
+ │ ├── .env      # config file
+ │ ├── core.ps1  # core function
+ │ ├── ci.ps1    # starter
+ │ └── ...
+ └── ci.ps1      # starter copy
+ └── ...         # your project
+```
+
+`.\gh\ci.ps1` / `.\ci.ps1` will be both effective.  
+
+Besides, you can keep it after updated scripts to new version.  
+**By and large**, content of the `ci.ps1` file would NOT change.  
+
+### Configuration `.env`
+```
+COMMAND_SAVE=save  # save func alias
+COMMAND_DIST=dist  # dist func alias
+BRANCH_MAIN=main   # old repo is master. good change. CLM!
+AUTO_DELETE=       # **CAUTION** auto delete path
+ENABLE_GITLAB=     # name of another remote repo
+DEBUG=false        # enable debug mode (log command to console instead of exec)
+```
+
 ### Windows
 ```powershell
 $ .\gh\ci.ps1 <COMMAND> [COMMIT MESSAGE]
 ```
 
-* `<COMMAND>`: `save` or `dist`  
+* `<COMMAND>`: `save` or `dist`(Default. You may edit it in `.env`)  
 * `[COMMIT MESSAGE]`: Commit message  
 
-#### Add untracked files to Staged
+#### General
+Add untracked files to Staged.  
+
 ```powershell
 $ .\gh\ci.ps1
 ```
 
-#### Commit changes & Push to remote @**CURRENT branch**
+#### Save
+Commit changed files & push to remote @ **CURRENT branch**.  
+
 ```powershell
 $ .\gh\ci.ps1 save
 ```
 
->  Default commit message wil be `Updated @yyyy-MM-dd HH:mm:ss`.  
+> Default commit message wil be like `Updated @yyyy-MM-dd HH:mm:ss`.  
 
 ---
 
-You may save the "save":  
-```powershell
-$ .\gh\ci.ps1 s
-```
-
----
-
-You may edit your own commit message:  
-```powershell
-$ .\gh\ci.ps1 sa init
-```
-
----
-
-You may edit a long commit message:  
+You may edit a long commit message (recommend using quotes):  
 ```powershell
 $ .\gh\ci.ps1 save "fix: It's a very long commit message & Closes #123, #456"
 ```
@@ -60,10 +93,26 @@ You may save the quotes:
 $ .\gh\ci.ps1 save commit message without special syntax
 ```
 
-#### Push main branch by merge & Keeping in current branch
+---
+
+You may save the "save":  
+```powershell
+$ .\gh\ci.ps1 s
+```
+
+---
+
+It's also support edit commit message:  
+```powershell
+$ .\gh\ci.ps1 sa init
+```
+
+#### Distribute
+Push `main` branch by merge with keeping in current branch.  
+
 ```powershell
 $ .\gh\ci.ps1 dist
-$ .\gh\ci.ps1 d # notice "d" not in "save"
+$ .\gh\ci.ps1 d # notice "d" not in "save" because save is first
 ```
 
 ### Linux
@@ -77,7 +126,7 @@ $ ./gh/ci
 $ git submodule update --rebase --remote
 ```
 
-You may also use in Windows:  
+You may also use update command alias in Windows:  
 ```bash
 $ .\gh\ci.ps1 update
 ```
@@ -89,4 +138,5 @@ $ ./gh/ci update
 
 ## TODO
 - [x] Support config file to customize script  
+- [x] Default NOT push to Gitee  
 - [ ] Refactor shell version to support Linux  

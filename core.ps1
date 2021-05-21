@@ -1,20 +1,18 @@
 #=================================================
 #   Author: Sumi(po@ews.ink)
-#   Version: 1.1.6.0
-#   Updated: 2021-05-20
-#   Description: Git Helper Powershell Version
+#   Description: Powershell scripts for better Git usage
 #=================================================
 
-$Script:Version = "1.1.6.0"
+$Script:Version = "1.1.7.0"
 $Script:Updated = "2021-05-21"
 [String]$Script:ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 #=================================================
-# @func Write-Dev
+# @func Write-Breakpoint
 # @param {Object} $Target
 # @desc Print debug
 #=================================================
-function Write-Dev {
+function Write-Breakpoint {
   [CmdletBinding()] param (
     [Parameter(Mandatory = $true, Position = 1)] $Breakpoint
   )
@@ -24,12 +22,12 @@ function Write-Dev {
 }
 
 #=================================================
-# @func Write-Log
+# @func Write-DisplayHint
 # @param {String} $Content logger content
 # @param {String} $Level logger level
 # @desc Print logger
 #=================================================
-function Write-Log {
+function Write-DisplayHint {
   [CmdletBinding()] param (
     [Parameter(Mandatory = $true, Position = 1)] [String]$Content,
     [Parameter(Position = 2)] [String]$Level = "INFO"
@@ -67,7 +65,7 @@ function Read-Config {
   [CmdletBinding()] param (
     [Parameter(Mandatory = $true, Position = 1)] [String]$ScriptPath
   )
-  # Write-Log "Reading config file(.env) ..." DEBUG
+  # Write-DisplayHint "Reading config file(.env) ..." DEBUG
   $ConfigPath = "{0}\.env" -F $ScriptPath
   if (Test-Path $ConfigPath) {
     $SettingList = Get-Content $ConfigPath # -Encoding UTF8
@@ -77,22 +75,24 @@ function Read-Config {
     } | ConvertFrom-StringData
   }
   else {
-    Write-Log ".env file not exists!" WARN
+    Write-DisplayHint ".env file not exists!" WARN
     @"
 COMMAND_SAVE=save
 COMMAND_DIST=dist
 BRANCH_MAIN=main
 AUTO_DELETE=
+ENABLE_GITLAB=
 DEBUG=false
 "@ | Out-File $ConfigPath
     $Script:Config = @{
-      COMMAND_SAVE = "save"
-      COMMAND_DIST = "dist"
-      BRANCH_MAIN  = "main"    # 老仓库是master 后来Github搞政治正确废除了"奴隶制" Code Lives Matter!
-      AUTO_DELETE  = ""        # 需要删除的文件夹写在这里即可 比如 /public/
-      DEBUG        = "false"
+      COMMAND_SAVE  = "save"
+      COMMAND_DIST  = "dist"
+      BRANCH_MAIN   = "main"
+      AUTO_DELETE   = ""
+      ENABLE_GITLAB = ""
+      DEBUG         = "false"
     }
-    Write-Log "Generated .env file success. Use default setting." NOTICE
+    Write-DisplayHint "Generated .env file success. Use default setting." NOTICE
   }
 }
 
@@ -109,26 +109,27 @@ function Initialize-Workspace {
     [Parameter(Position = 2)] [String]$DeletePath
   )
   if (-not (Test-Path "$($Root)/.git")) {
-    Write-Log "Workspace is NOT a git project!" FATAL
+    Write-DisplayHint "Workspace is NOT a git project!" FATAL
     return $false
   }
   Set-Location $Root
-  Write-Log "Workspace: $($Root)" SUCCESS
+  Write-DisplayHint "Workspace: $($Root)" SUCCESS
   $Script:Branch = $(git rev-parse --abbrev-ref HEAD)
-  Write-Log "Branch: $($Script:Branch) ($(git rev-parse --short HEAD))"
+  Write-DisplayHint "Branch: $($Script:Branch) ($(git rev-parse --short HEAD))"
 
   if (-not [String]::IsNullOrEmpty($DeletePath)) {
     $will_delete = $Root + "\" + $DeletePath.Trim("/")
     if ((Test-Path $will_delete) -and (-not $Root.Contains($will_delete))) {
       if ("$($Script:Config.DEBUG)".CompareTo("true") -ne -1) {
         $DebugTips = "Try to delete:`nRemove-Item `"{0}`" -Recurse" -F $will_delete
-        Write-Log $DebugTips DEBUG
+        Write-DisplayHint $DebugTips DEBUG
       }
       else {
         Remove-Item "$will_delete" -Recurse
       }
     }
   }
+
   return $true
 }
 
@@ -145,24 +146,24 @@ function Invoke-Command {
   )
   if ($DebugMode.CompareTo("true") -ne -1) {
     $DebugTips = "Try to exec command:`n" + $CommandString
-    Write-Log $DebugTips DEBUG
+    Write-DisplayHint $DebugTips DEBUG
   }
   else {
     $command = [scriptblock]::Create($CommandString)
-    Trap { Write-Log "Trap Error: $($_.Exception.Message)" ERROR; Continue }
+    Trap { Write-DisplayHint "Trap Error: $($_.Exception.Message)" ERROR; Continue }
     & $command
   }
 }
 
 #=================================================
-# @func Main
-# @desc Main workflow
+# @func Invoke-Workflow
+# @desc Invoke Main workflow
 #=================================================
-function Invoke-Main {
+function Invoke-Workflow {
   [CmdletBinding()] param (
     [Parameter(Mandatory = $true)] $Temp
   )
-  Write-Log "Script Version $($Version)    Updated @$($Updated)" NOTICE
+  Write-DisplayHint "Script Version $($Version)    Updated @$($Updated)" NOTICE
 
   $Script:Root = $Script:ScriptPath | Split-Path
   Read-Config $Script:ScriptPath
@@ -174,6 +175,7 @@ function Invoke-Main {
     $Script:CommandBlock = @"
 git add .
 git status
+Write-Host "123" && Write-Host "abc"
 "@
   }
   else {
@@ -188,21 +190,36 @@ git status
       $commit_message = "$($extraMsg.Trim())"
     }
 
+    function Get-PushCommand {
+      [CmdletBinding()] param (
+        [Parameter(Mandatory = $true)] $Branch
+      )
+      if ([String]::IsNullOrEmpty($Script:Config.ENABLE_GITLAB)) {
+        return  @"
+git push -u origin $($Branch)
+"@
+      }
+      else {
+        return  @"
+git push -u origin $($Branch)
+git push $($Script:Config.ENABLE_GITLAB) $($Branch)
+"@
+      }
+    }
     $Script:DoSave = @"
-git switch $($Script:Branch)
 git add .
 git status
 git commit -m `"$($commit_message)`"
-git push -u origin $($Script:Branch)
-git push gitee $($Script:Branch)
+$(Get-PushCommand $Script:Branch)
 "@
 
     $Script:DoDist = @"
+git stash push
 git switch $($Script:Config.BRANCH_MAIN)
 git merge $($Script:Branch) -m "$($commit_message)"
-git push -u origin $($Script:Config.BRANCH_MAIN)
-git push gitee $($Script:Config.BRANCH_MAIN)
+$(Get-PushCommand $Script:Config.BRANCH_MAIN)
 git switch $($Script:Branch)
+git stash apply
 "@
 
     if ("$($Script:Config.COMMAND_SAVE)".Contains("$($Temp[0])")) {
