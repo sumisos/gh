@@ -1,9 +1,9 @@
-<h2 align="center">🚀 Git 使用助手 PowerShell 版</h2>
+<h1 align="center">🚀 Git 使用助手 PowerShell 版</h1>
 
 <p  align="center">
     <a href="https://github.com/sumisos/gh" target="_blank"><img src="https://img.shields.io/badge/sumisos-gh-blue?logo=github" alt="Github Repository" /></a>
-    <a href="https://github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/license-MIT-green" alt="Package License" /></a>
-    <a href="https://github.com/sumisos/gh/tags" target="_blank"><img src="https://img.shields.io/github/v/tag/sumisos/gh" alt="Release Version" /></a>
+    <a href="https://github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green" alt="Package License" /></a>
+    <a href="https://github.com/sumisos/gh/tags" target="_blank"><img src="https://img.shields.io/github/v/tag/sumisos/gh?label=Version" alt="Release Version" /></a>
 </p>
 
 ## 安装
@@ -39,9 +39,9 @@ Your-Project/
  └── ...         # 你的项目文件
 ```
 
-如此一来之后所有的 `.\gh\ci.ps1` => `.\ci.ps1`（而且两种方式都能使用）。  
+如此一来，之后所有的 `.\gh\ci.ps1` => `.\ci.ps1`。（而且两种方式都能使用）  
 
-并且之后版本更新，也不需要重新拷贝启动脚本，可以继续沿用。  
+并且以后当版本更新时，也不需要重新拷贝启动脚本，可以继续沿用。  
 因为**一般来说**入口文件是不会变动的。  
 
 ### 配置文件 `.env`
@@ -54,7 +54,7 @@ ENABLE_GITLAB=     # 多仓库名字 需要提前配置好多远程仓库
 DEBUG=false        # 开启Debug模式 打印出将运行的命令但不运行
 ```
 
-> 如果参考 [同时使用 Github 以及 Gitee 进行版本管理](https://ews.ink/tech/git-github-gitee) 一文配置**多远程仓库**，`ENABLE_GITLAB` 就应该填 `gitee`。  
+> 如果参考<a href="https://ews.ink/tech/git-github-gitee" target="_blank">同时使用 Github 以及 Gitee 进行版本管理</a>一文配置**多远程仓库**，`ENABLE_GITLAB` 就应该填 `gitee`。  
 
 ### Windows
 ```powershell
@@ -62,14 +62,16 @@ $ .\gh\ci.ps1 <COMMAND> [COMMIT MESSAGE]
 ```
 
 * `<COMMAND>`： 默认为 `save` 或者 `dist`，可以在配置文件中自行设置  
-* `[COMMIT MESSAGE]`： Commit message  
+* `[COMMIT MESSAGE]`： 传递到实际 `commit` 命令的 commit message  
 
-#### Add untracked files to Staged
+#### 常规
+添加工作区的所有变动文件到本地仓库：  
 ```powershell
 $ .\gh\ci.ps1
 ```
 
-#### Commit changes & Push to remote @**CURRENT branch**
+#### 保存
+提交当前分支的所有变动，并 push 到远程仓库：  
 ```powershell
 $ .\gh\ci.ps1 save
 ```
@@ -106,7 +108,7 @@ $ .\gh\ci.ps1 s init
 ```
 
 #### 分发
-保持处于 `当前分支` 的情况下，将 `当前分支` 合并到 `主分支`，并提交 `主分支`。  
+保持处于 `当前分支` 的情况下，将 `当前分支` 合并到 `主分支`，并提交 `主分支`：  
 
 ```powershell
 $ .\gh\ci.ps1 dist

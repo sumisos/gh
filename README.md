@@ -1,9 +1,9 @@
-<h2 align="center">🚀 Git Helper Scripts Using PowerShell</h2>
+<h1 align="center">🚀 Git Helper Scripts Using PowerShell</h1>
 
 <p  align="center">
     <a href="https://github.com/sumisos/gh" target="_blank"><img src="https://img.shields.io/badge/sumisos-gh-blue?logo=github" alt="Github Repository" /></a>
-    <a href="https://github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/license-MIT-green" alt="Package License" /></a>
-    <a href="https://github.com/sumisos/gh/tags" target="_blank"><img src="https://img.shields.io/github/v/tag/sumisos/gh" alt="Release Version" /></a>
+    <a href="https://github.com/sumisos/gh/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green" alt="Package License" /></a>
+    <a href="https://github.com/sumisos/gh/tags" target="_blank"><img src="https://img.shields.io/github/v/tag/sumisos/gh?label=Version" alt="Release Version" /></a>
     <a href="https://github.com/sumisos/gh/blob/main/README.zh-CN.md" target="_blank"><img src="https://img.shields.io/badge/中文-文档-green" alt="Release Version" /></a>
 </p>
 
@@ -30,7 +30,7 @@ Your-Project/
 Become：  
 ```
 Your-Project/
- ├── .git/       # Git repo meta info
+ ├── .git/       # git repo meta info
  ├── gh/
  │ ├── .env      # config file
  │ ├── core.ps1  # core function
@@ -49,7 +49,7 @@ Besides, you can keep it after updated scripts to new version.
 ```
 COMMAND_SAVE=save  # save func alias
 COMMAND_DIST=dist  # dist func alias
-BRANCH_MAIN=main   # old repo is master. good change. CLM!
+BRANCH_MAIN=main   # old repo is master. nice try. CLM!
 AUTO_DELETE=       # **CAUTION** auto delete path
 ENABLE_GITLAB=     # name of another remote repo
 DEBUG=false        # enable debug mode (log command to console instead of exec)
@@ -60,8 +60,8 @@ DEBUG=false        # enable debug mode (log command to console instead of exec)
 $ .\gh\ci.ps1 <COMMAND> [COMMIT MESSAGE]
 ```
 
-* `<COMMAND>`: `save` or `dist`(Default. You may edit it in `.env`)  
-* `[COMMIT MESSAGE]`: Commit message  
+* `<COMMAND>`: `save` or `dist` (you may edit it in `.env`)  
+* `[COMMIT MESSAGE]`: commit message  
 
 #### General
 Add untracked files to Staged.  
@@ -77,7 +77,7 @@ Commit changed files & push to remote @ **CURRENT branch**.
 $ .\gh\ci.ps1 save
 ```
 
-> Default commit message wil be like `Updated @yyyy-MM-dd HH:mm:ss`.  
+> Default commit message will be like `Updated @yyyy-MM-dd HH:mm:ss`.  
 
 ---
 
@@ -108,7 +108,7 @@ $ .\gh\ci.ps1 sa init
 ```
 
 #### Distribute
-Push `main` branch by merge with keeping in current branch.  
+Push `main` branch by merge current branch with keeping in.  
 
 ```powershell
 $ .\gh\ci.ps1 dist
