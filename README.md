@@ -64,14 +64,14 @@ $ .\gh\ci.ps1 <COMMAND> [COMMIT MESSAGE]
 * `[COMMIT MESSAGE]`: commit message  
 
 #### General
-Add untracked files to Staged.  
+Add untracked files to Staged:  
 
 ```powershell
 $ .\gh\ci.ps1
 ```
 
 #### Save
-Commit changed files & push to remote @ **CURRENT branch**.  
+Commit changed files & push to remote @ **CURRENT branch**:  
 
 ```powershell
 $ .\gh\ci.ps1 save
@@ -108,7 +108,7 @@ $ .\gh\ci.ps1 sa init
 ```
 
 #### Distribute
-Push `main` branch by merge current branch with keeping in.  
+Push `main` branch by merge current branch with keeping in:  
 
 ```powershell
 $ .\gh\ci.ps1 dist

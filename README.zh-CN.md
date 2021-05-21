@@ -51,7 +51,7 @@ COMMAND_DIST=dist  # dist 功能的别名
 BRANCH_MAIN=main   # 老仓库是master 后来Github搞政治正确废除了"奴隶制"  Code Lives Matter!
 AUTO_DELETE=       # **慎用** 自动删除目录 留空为不删除
 ENABLE_GITLAB=     # 多仓库名字 需要提前配置好多远程仓库
-DEBUG=false        # 开启Debug模式 打印出将运行的命令但不运行
+DEBUG=false        # 开启Debug模式 打印出原本应该运行的命令
 ```
 
 > 如果参考<a href="https://ews.ink/tech/git-github-gitee" target="_blank">同时使用 Github 以及 Gitee 进行版本管理</a>一文配置**多远程仓库**，`ENABLE_GITLAB` 就应该填 `gitee`。  

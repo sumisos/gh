@@ -175,7 +175,6 @@ function Invoke-Workflow {
     $Script:CommandBlock = @"
 git add .
 git status
-Write-Host "123" && Write-Host "abc"
 "@
   }
   else {
