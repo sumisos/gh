@@ -1,1 +1,9 @@
+# Configuration
 .env
+
+# Development
+gh/
+
+# Test
+public/
+unit-test.ps1
